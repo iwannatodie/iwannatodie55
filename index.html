@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="">
+  <title>@iwannatodie</title>
+  <!-- V17: CSP без Telegram. Отчёты уходят на /api/*. Разрешён Discord CDN для аватарок. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https:; media-src 'self' blob:; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cdn.discordapp.com; frame-src 'self';">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="@iwannatodie">
+  <meta property="og:description" content="">
+  <meta property="og:site_name" content="@iwannatodie">
+  <meta property="og:url" content="https://iwannatodie.netlify.app/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="@iwannatodie">
+  <meta name="twitter:description" content="">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://ipwho.is">
+  <link rel="preconnect" href="https://ipapi.co">
+  <link rel="preconnect" href="https://cdn.discordapp.com">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="stage-lines" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="drop-curtain" id="dropCurtain" aria-hidden="true">
+    <div class="countdown-shell">
+      <strong class="countdown-number" id="countdownNumber">13</strong>
+      <div class="countdown-track" aria-hidden="true"><i id="countdownProgress"></i></div>
+      <span class="countdown-foot">@iwannatodie</span>
+    </div>
+  </div>
+  <section class="fail-screen" id="failScreen" hidden>
+    <div class="fail-code">AUDIO / CONNECTION FAILED</div>
+    <h1>ТРЕК НЕ<br><span>ЗАГРУЗИЛСЯ</span></h1>
+    <p>Локальный файл track.mp3 не найден или не смог запуститься. Добавь разрешённый для использования трек в папку сайта и опубликуй её снова.</p>
+    <button class="glass retry-button" id="retryButton" type="button">ПОПРОБОВАТЬ ЕЩЁ ↗</button>
+  </section>
+
+  <header class="topbar" id="topbar">
+    <a class="creator" href="#" aria-label="Создатель">@iwannatodie<span>.</span></a>
+    <div class="top-right" id="topRight" hidden>
+      <span class="live-dot" aria-hidden="true"></span>
+      <span id="audioState" class="sr-only" aria-live="polite">LOCAL AUDIO / PREPARING</span>
+      <button class="sound-toggle glass" id="soundToggle" type="button" aria-label="Выключить звук" title="Звук">
+        <svg class="sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M16 9a5 5 0 0 1 0 6M18.5 6.5a9 9 0 0 1 0 11"/></svg>
+        <svg class="sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="m17 9 5 6m0-6-5 6"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="landing" id="landing" aria-label="Главный экран">
+      <div class="portal" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+      <!-- V17: Discord-авторизация обязательна для просмотра/создания биографий -->
+      <div class="auth-gate" id="authGate">
+        <div class="auth-card glass">
+          <div class="auth-kicker">@iwannatodie</div>
+          <h1 class="auth-title">ВХОД<br><em>ЧЕРЕЗ DISCORD</em></h1>
+          <p class="auth-text">
+            Для создания и просмотра цифровых биографий устройства нужна авторизация через Discord.
+            Сайт получит только ID, никнейм и аватар. Пароль и доступ к серверам не запрашиваются.
+          </p>
+          <a class="start auth-btn" id="authBtn" href="/api/discord-login">
+            <span>ВОЙТИ</span><b aria-hidden="true">↗</b>
+          </a>
+          <div class="auth-user" id="authUser" hidden>
+            <img id="authAvatar" class="auth-avatar" alt="" width="44" height="44">
+            <div class="auth-user-info">
+              <strong id="authName">—</strong>
+              <span id="authTag">—</span>
+            </div>
+            <a class="auth-logout" href="/api/logout">выход</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Кнопка Start показывается только после успешной авторизации -->
+      <button class="start glass" id="start" type="button" hidden aria-label="Узнать данные устройства">
+        <span>УЗНАТЬ</span><b aria-hidden="true">↗</b>
+      </button>
+    </section>
+
+    <section class="result" id="result" aria-hidden="true">
+      <div class="scanline" aria-hidden="true"></div>
+      <audio id="siteTrack" class="site-audio" src="track.mp3" preload="auto" playsinline></audio>
+
+      <div class="data-grid network-grid">
+        <article class="data-card ip-card glass" data-step="0"><span class="card-index">01 <b>— PUBLIC IP</b></span><span class="field-name">ПУБЛИЧНЫЙ IP-АДРЕС</span><strong class="value ip-value" id="ipValue">СЧИТЫВАЕМ…</strong><span class="field-extra" id="ipTypeValue">ТИП СЕТЕВОГО АДРЕСА —</span><span class="field-extra" id="ipPlace">ГОРОД ПО IP ЗАГРУЖАЕТСЯ</span><span class="corner-mark" aria-hidden="true">⌁</span></article>
+        <article class="data-card location-card glass" data-step="1"><span class="card-index">02 <b>— IP GEO</b></span><span class="field-name">ПРИМЕРНЫЙ ГОРОД</span><strong class="value" id="regionValue">ПОИСК…</strong><span class="field-extra" id="regionExtra">РЕГИОН / СТРАНА —</span><span class="corner-mark" aria-hidden="true">⌖</span></article>
+        <article class="data-card network-info glass" data-step="2"><span class="card-index">03 <b>— NETWORK</b></span><span class="field-name">ПРОВАЙДЕР / ISP</span><strong class="value" id="providerValue">ОЖИДАНИЕ</strong><span class="field-extra" id="asnValue">ASN —</span><span class="field-extra" id="providerExtra">ОРГАНИЗАЦИЯ —</span><span class="corner-mark" aria-hidden="true">↯</span></article>
+        <article class="data-card coords-card glass" data-step="3"><span class="card-index">04 <b>— APPROX. MAP</b></span><span class="field-name">КООРДИНАТЫ ПО IP</span><strong class="value" id="ipCoords">—</strong><span class="field-extra">ПРИМЕРНАЯ ТОЧКА СЕТИ, НЕ GPS</span><span class="corner-mark" aria-hidden="true">◎</span></article>
+        <article class="data-card glass" data-step="4"><span class="card-index">05 <b>— GEO META</b></span><span class="field-name">СТРАНА / КОНТИНЕНТ</span><strong class="value" id="countryMeta">—</strong><span class="field-extra" id="countryCodeMeta">КОД СТРАНЫ —</span></article>
+        <article class="data-card glass" data-step="5"><span class="card-index">06 <b>— IP TIMEZONE</b></span><span class="field-name">ЧАСОВОЙ ПОЯС СЕТИ</span><strong class="value" id="ipTimezone">—</strong><span class="field-extra" id="ipUtc">UTC —</span></article>
+        <article class="data-card glass" data-step="6"><span class="card-index">07 <b>— POSTAL</b></span><span class="field-name">ПОЧТОВЫЙ ИНДЕКС ПО IP</span><strong class="value" id="postalValue">—</strong><span class="field-extra" id="postalExtra">СТОЛИЦА / ТЕЛЕФОННЫЙ КОД —</span></article>
+        <article class="data-card glass" data-step="7"><span class="card-index">08 <b>— ROUTING</b></span><span class="field-name">СЕТЕВОЙ ПРОТОКОЛ</span><strong class="value" id="networkTypeValue">—</strong><span class="field-extra" id="networkExtra">ASN / СЕТЬ —</span></article>
+      </div>
+
+      <div class="data-grid device-grid">
+        <article class="data-card device-card glass" data-step="8"><span class="card-index">09 <b>— BROWSER</b></span><span class="field-name">БРАУЗЕР</span><strong class="value" id="browserValue">—</strong><span class="field-extra" id="browserExtra">—</span></article>
+        <article class="data-card device-card glass" data-step="9"><span class="card-index">10 <b>— ENGINE</b></span><span class="field-name">ДВИЖОК / ВЕРСИЯ</span><strong class="value" id="engineValue">—</strong><span class="field-extra" id="engineExtra">ВЕРСИЯ БРАУЗЕРА —</span></article>
+        <article class="data-card device-card glass" data-step="10"><span class="card-index">11 <b>— PLATFORM</b></span><span class="field-name">ОПЕРАЦИОННАЯ СИСТЕМА</span><strong class="value" id="platformValue">—</strong><span class="field-extra" id="platformExtra">ПЛАТФОРМА —</span></article>
+        <article class="data-card device-card glass" data-step="11"><span class="card-index">12 <b>— DEVICE CLASS</b></span><span class="field-name">ТИП УСТРОЙСТВА</span><strong class="value" id="deviceClassValue">—</strong><span class="field-extra" id="deviceClassExtra">ПО ДОСТУПНЫМ ПРИЗНАКАМ</span></article>
+        <article class="data-card device-card glass" data-step="12"><span class="card-index">13 <b>— SCREEN</b></span><span class="field-name">РАЗРЕШЕНИЕ ЭКРАНА</span><strong class="value" id="screenValue">—</strong><span class="field-extra" id="screenOrientation">ОРИЕНТАЦИЯ —</span></article>
+        <article class="data-card device-card glass" data-step="13"><span class="card-index">14 <b>— VIEWPORT</b></span><span class="field-name">ОКНО БРАУЗЕРА</span><strong class="value" id="windowValue">—</strong><span class="field-extra" id="availScreenValue">ДОСТУПНАЯ ОБЛАСТЬ —</span></article>
+        <article class="data-card device-card glass" data-step="14"><span class="card-index">15 <b>— DISPLAY</b></span><span class="field-name">ПИКСЕЛИ / ЦВЕТ</span><strong class="value" id="pixelValue">—</strong><span class="field-extra" id="colorValue">ЦВЕТОВАЯ ГЛУБИНА —</span></article>
+        <article class="data-card device-card glass" data-step="15"><span class="card-index">16 <b>— HARDWARE</b></span><span class="field-name">ЛОГИЧЕСКИЕ ЯДРА</span><strong class="value" id="cpuValue">—</strong><span class="field-extra" id="memoryValue">ПАМЯТЬ —</span></article>
+      </div>
+
+      <div class="technical-grid">
+        <article class="tech-row glass hardware-row" data-step="16"><span>CPU / MODEL & ARCHITECTURE</span><strong id="cpuModelValue">МОДЕЛЬ CPU НЕ РАСКРЫВАЕТСЯ</strong><small id="cpuModelExtra">АРХИТЕКТУРА —</small></article>
+        <article class="tech-row glass hardware-row" data-step="17"><span>GPU / WEBGL RENDERER</span><strong id="gpuValue">ПРОВЕРКА GPU…</strong><small id="gpuExtra">ДАННЫЕ ОБРАБАТЫВАЮТСЯ ЛОКАЛЬНО</small></article>
+        <article class="tech-row glass" data-step="18"><span>ЯЗЫКИ БРАУЗЕРА</span><strong id="languageValue">—</strong></article>
+        <article class="tech-row glass" data-step="19"><span>ЛОКАЛЬНЫЙ ЧАСОВОЙ ПОЯС</span><strong id="zoneValue">—</strong></article>
+        <article class="tech-row glass" data-step="20"><span>ТЕКУЩЕЕ ЛОКАЛЬНОЕ ВРЕМЯ</span><strong id="localTimeValue">—</strong></article>
+        <article class="tech-row glass" data-step="21"><span>СЕТЕВОЕ СОЕДИНЕНИЕ</span><strong id="connectionValue">—</strong></article>
+        <article class="tech-row glass" data-step="22"><span>ONLINE / COOKIES / HTTPS</span><strong id="basicStatusValue">—</strong></article>
+        <article class="tech-row glass" data-step="23"><span>СЕНСОРНЫЙ ВВОД</span><strong id="touchValue">—</strong></article>
+        <article class="tech-row glass" data-step="24"><span>УПРАВЛЕНИЕ / УКАЗАТЕЛЬ</span><strong id="pointerValue">—</strong></article>
+        <article class="tech-row glass" data-step="25"><span>НАСТРОЙКИ ЭКРАНА</span><strong id="preferencesValue">—</strong></article>
+        <article class="tech-row glass" data-step="26"><span>WEBGL / WASM / WEBRTC</span><strong id="apisValue">—</strong></article>
+        <article class="tech-row glass" data-step="27"><span>MEDIA / PDF</span><strong id="mediaValue">—</strong></article>
+        <article class="tech-row glass" data-step="28"><span>ХРАНИЛИЩЕ БРАУЗЕРА</span><strong id="storageValue">—</strong></article>
+        <article class="tech-row glass" data-step="29"><span>ПРИВАТНОСТЬ / DNT</span><strong id="privacyValue">—</strong></article>
+        <article class="tech-row glass" data-step="30"><span>ВРЕМЯ ЗАГРУЗКИ СТРАНИЦЫ</span><strong id="loadTimeValue">—</strong></article>
+        <article class="tech-row glass" data-step="31"><span>РЕФЕРЕР</span><strong id="referrerValue">—</strong></article>
+        <article class="tech-row glass" data-step="32"><span>ОШИБКИ / ПОДДЕРЖКА API</span><strong id="apiSupportValue">—</strong></article>
+      </div>
+
+      <article class="data-card user-agent-card glass" data-step="33"><span class="card-index">32 <b>— RAW CLIENT STRING</b></span><span class="field-name">USER-AGENT — СТРОКА БРАУЗЕРА</span><strong class="value" id="userAgentValue">—</strong><span class="field-extra">ОТПРАВЛЯЕТСЯ ВМЕСТЕ С DISCORD ID В ОТЧЁТЕ ВЛАДЕЛЬЦУ</span></article>
+
+      <p class="geo-disclosure" data-step="34">Город определяется по публичному IP, который видит внешний геосервис; при необходимости используются резервные IP-сервисы. Они получают адрес сетевого выхода запроса, чтобы вернуть геоданные. Отчёт устройства (включая IP, гео, User-Agent, GPU, CPU, RAM) отправляется владельцу сайта в Telegram вместе с твоим Discord ID, никнеймом и аватаркой. IP-геолокация не гарантирует точный город или домашний адрес.</p>
+      <div class="footline" data-step="35"><span>DISCORD-LINKED DEVICE REPORT · BY @IWANNATODIE</span><span>DESIGNED BY @IWANNATODIE</span></div>
+      <button class="restart" id="restart" type="button" data-step="36">↺ <span>НА ГЛАВНУЮ</span></button>
+    </section>
+  </main>
+
+  <!-- Cloudflare Web Analytics: aggregated traffic statistics, configured by the site owner. -->
+  <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"78bac8a8700846da9d9bfbada7d15359"}'></script>
+  <script src="app.js"></script>
+</body>
+</html>

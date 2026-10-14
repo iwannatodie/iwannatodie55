@@ -1,0 +1,11 @@
+PRIVACY NOTES — v12
+
+• Browser/device details are collected locally in the visitor's browser and shown on the report screen.
+• IP geolocation requests necessarily send the visitor's public IP to the selected IP-geolocation service.
+• Coordinates are approximate IP-location coordinates, not GPS and not a street address.
+• Coordinate values are validated; null/empty values no longer turn into 0,0. A fallback provider is attempted if the coordinate pair is missing.
+• If no provider returns valid latitude and longitude, the site displays “НЕДОСТУПНО”.
+• No full device report or unique fingerprint is sent to the site owner.
+• Cloudflare Web Analytics is used for aggregate traffic statistics.
+
+• Public IP shown by this page is the egress IP observed by the external geolocation service. The page does not use WebRTC to attempt to reveal addresses hidden by VPN/proxy services.
